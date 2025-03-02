@@ -3,6 +3,10 @@ apply plugin: 'kotlin-android'
 
 android {
 
+    buildFeatures{
+        prefab true
+    }
+
     ndkVersion versions.ndkVersion
     compileSdkVersion versions.compileSdk
     buildToolsVersion versions.buildTools
@@ -29,6 +33,21 @@ android {
         }
     }
 
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+            java {
+                srcDir "src/main/java"
+            }
+        }
+    }
+
+
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -38,6 +57,7 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'com.bytedance.android:shadowhook:1.0.2'
     implementation 'com.bytedance.btrace:rhea-core:2.0.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'

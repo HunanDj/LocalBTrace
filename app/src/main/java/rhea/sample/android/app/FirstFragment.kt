@@ -47,7 +47,10 @@ class FirstFragment : Fragment() {
             val button = view.findViewById(R.id.button_local_trace) as Button
             button.setOnClickListener {
                 button.setText(R.string.local_trace_dumping)
-                LocalTraceSession.Builder().setDuration(5000).build()
+                LocalTraceSession.Builder()
+                    .setMethodIdMaxSize(300000000)
+                    .setMainThreadOnly(true)
+                    .setDuration(5000).build()
                     .start(view.context) { _, msg ->
                         Toast.makeText(context, "$msg", Toast.LENGTH_SHORT).show()
                         button.setText(R.string.local_trace)
