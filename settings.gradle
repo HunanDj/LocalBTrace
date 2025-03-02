@@ -16,3 +16,4 @@ include ':app'
 //project(':rhea-trace-processor').projectDir = new File("./rhea-tool/rhea-trace-processor")
 rootProject.name = "RheaTrace"
 include ':localtrace'
+include ':local-trace-processor'
