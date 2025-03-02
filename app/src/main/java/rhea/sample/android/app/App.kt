@@ -18,6 +18,8 @@ package rhea.sample.android.app
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import com.jay.localtrace.utils.Logger
+import com.jay.localtrace.utils.TraceLogger
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 
@@ -28,6 +30,19 @@ class App : Application() {
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         initSdks()
+        TraceLogger.setLogger(object : Logger {
+            override fun d(tag: String, message: String) {
+                Log.d(tag, message)
+            }
+
+            override fun i(tag: String, message: String) {
+                Log.i(tag, message)
+            }
+
+            override fun e(tag: String, message: String, throwable: Throwable?) {
+                Log.e(tag, message)
+            }
+        })
         latch.await()
     }
 

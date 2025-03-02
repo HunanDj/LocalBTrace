@@ -15,13 +15,16 @@
  */
 package rhea.sample.android.app
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.jay.localtrace.LocalTraceSession
 import rhea.sample.android.R
 
 /**
@@ -30,8 +33,8 @@ import rhea.sample.android.R
 class FirstFragment : Fragment() {
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_first, container, false)
@@ -39,6 +42,18 @@ class FirstFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            val button = view.findViewById(R.id.button_local_trace) as Button
+            button.setOnClickListener {
+                button.setText(R.string.local_trace_dumping)
+                LocalTraceSession.Builder().setDuration(5000).build()
+                    .start(view.context) { _, msg ->
+                        Toast.makeText(context, "$msg", Toast.LENGTH_SHORT).show()
+                        button.setText(R.string.local_trace)
+                    }
+            }
+        }
 
         view.findViewById<Button>(R.id.button_first).setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)

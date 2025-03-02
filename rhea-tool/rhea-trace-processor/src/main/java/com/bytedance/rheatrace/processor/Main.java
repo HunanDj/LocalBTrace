@@ -47,6 +47,14 @@ import java.util.function.Function;
 public class Main {
     private static Arguments arg;
 
+
+//    public static void main(String[] args) throws Exception{
+//        Debug.init(args);
+//        arg = Arguments.init(args);
+//        SystemLevelCapture sysCapture = getSystemLevelCapture();
+//        sysCapture.process();
+//    }
+
     public static void main(String[] args) throws Exception {
         if (args.length == 0 || Arrays.asList(args).contains("-v")) {
             System.out.println("Version: " + Version.NAME);
