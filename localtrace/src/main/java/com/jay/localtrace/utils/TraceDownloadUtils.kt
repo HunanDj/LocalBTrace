@@ -6,10 +6,13 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.bytedance.rheatrace.atrace.BinaryTrace
 import com.bytedance.rheatrace.core.HttpServer
 import com.jay.localtrace.TAG
 import fi.iki.elonen.NanoHTTPD
 import java.io.File
+import java.io.FileInputStream
+import java.io.RandomAccessFile
 import java.lang.reflect.Field
 import java.net.URL
 
@@ -89,15 +92,20 @@ class TraceDownloadUtils {
                     )
 
                     for ((name, destination) in files) {
-                        val url = "http://127.0.0.1:$port?name=$name"
+                        val url = "http://localhost:$port?name=$name"
                         TraceLogger.d(TAG, "download file  $name to $destination! with URL $url")
-                        URL(url).openStream().use { input ->
-                            destination.outputStream().use { output ->
-                                input.copyTo(output)
-                            }
+
+                        val hostDir = File(context.getExternalFilesDir(""), "rhea-trace");
+                        if ("trace" == name) {
+                            copyFileSegment(
+                                File(hostDir, "rhea-atrace.bin").absolutePath,
+                                destination,
+                                BinaryTrace.currentBufferUsage()
+                            )
+                        } else {
+                            copyFile(File(hostDir, name), destination)
                         }
                     }
-
                     TraceLogger.d(TAG, "download downloadTraceFiles success!")
                     // 在主线程显示下载成功的 Toast
                     notifyInMainThread(true, "下载 trace 文件成功！", onComplete)
@@ -111,6 +119,40 @@ class TraceDownloadUtils {
                 }
             }.start()
         }
+
+
+        private fun copyFileSegment(sourceFile: String, destFile: File, length: Long) {
+            RandomAccessFile(sourceFile, "r").use { input ->
+                destFile.outputStream().use { output ->
+                    val buffer = ByteArray(1024)
+                    var bytesRead: Int
+                    var remaining = length
+
+                    while (remaining > 0) {
+                        bytesRead = input.read(buffer, 0, minOf(buffer.size, remaining.toInt()))
+                        if (bytesRead == -1) break  // 读到文件结尾
+                        output.write(buffer, 0, bytesRead)
+                        remaining -= bytesRead
+                    }
+                }
+            }
+        }
+
+
+        private fun copyFile(sourceFile: File, destFile: File) {
+            try {
+                sourceFile.inputStream().use { input ->
+                    destFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            } catch (e: Exception) {
+                System.err.println("Failed to copy file: ${sourceFile.absolutePath}")
+                e.printStackTrace()
+            }
+        }
+
     }
+
 
 }
